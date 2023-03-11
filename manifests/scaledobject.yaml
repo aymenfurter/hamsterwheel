@@ -1,0 +1,40 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: hamsterwheel-scaledobject
+spec:
+  scaleTargetRef:
+    name: hamsterwheel
+  pollingInterval: 30
+  cooldownPeriod: 60
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  triggers:
+  - type: azure-servicebus
+    authenticationRef:
+      name: hamsterwheel-triggerauth
+    metadata:
+      queueName: "seeds"
+      namespace: "hamsterwheel"
+      messageCount: "1"
+  advanced:
+    restoreToOriginalReplicaCount: false
+    horizontalPodAutoscalerConfig:
+      name: hpa
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 750
+          policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: hamsterwheel-triggerauth
+spec:
+  secretTargetRef:
+    - parameter: connection 
+      name: servicebus-secret
+      key: servicebus-connection-string

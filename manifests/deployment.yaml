@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hamsterwheel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hamsterwheel
+  template:
+    metadata:
+      labels:
+        app: hamsterwheel
+    spec:
+      containers:
+        - name: hamsterwheel
+          image: <youracr>.azurecr.io/hamsterwheel:latest
+          resources:
+            limits:
+              cpu: "0.25"
+            requests:
+              cpu: "0.25"
+          env:
+            - name: HAMSTERWHEEL_ESTIMATEDDURATIONINSECONDS
+              value: "50"
